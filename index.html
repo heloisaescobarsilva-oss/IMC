@@ -1,650 +1,704 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora IMC — Clínico & Performance</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
- 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
-  :root {
-    --navy:    #1A3A5C;
-    --navy-md: #2A5080;
-    --teal:    #0D9488;
-    --green:   #16A34A;
-    --yellow:  #D97706;
-    --orange:  #EA580C;
-    --red:     #DC2626;
-    --bg:      #F0F4F8;
-    --surface: #FFFFFF;
-    --border:  #CBD5E1;
-    --muted:   #64748B;
-    --text:    #0F172A;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Inter', sans-serif;
-  }
- 
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
- 
-  /* ── HEADER ── */
-  header {
-    width: 100%;
-    background: var(--navy);
-    padding: 18px 32px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .logo-icon {
-    width: 36px; height: 36px;
-    background: var(--teal);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  header h1 { color: #fff; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
-  header p  { color: #94A3B8; font-size: 0.72rem; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; }
- 
-  /* ── MODE TOGGLE ── */
-  .mode-bar {
-    width: 100%; max-width: 860px;
-    padding: 24px 24px 0;
-    display: flex; gap: 0;
-  }
-  .mode-btn {
-    flex: 1; padding: 10px 0;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    font-family: var(--sans);
-    font-size: 0.82rem; font-weight: 600;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all .2s;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .mode-btn:first-child { border-radius: 8px 0 0 8px; }
-  .mode-btn:last-child  { border-radius: 0 8px 8px 0; border-left: none; }
-  .mode-btn.active {
-    background: var(--navy);
-    color: #fff;
-    border-color: var(--navy);
-  }
- 
-  /* ── MAIN LAYOUT ── */
-  .main {
-    width: 100%; max-width: 860px;
-    padding: 20px 24px 48px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
- 
-  /* ── CARD ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 24px;
-  }
-  .card-title {
-    font-size: 0.72rem; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 18px;
-  }
- 
-  /* ── INPUTS ── */
-  .field { margin-bottom: 16px; }
-  .field label {
-    display: block;
-    font-size: 0.78rem; font-weight: 600; color: var(--navy);
-    margin-bottom: 6px;
-  }
-  .field-row { display: flex; gap: 10px; align-items: center; }
-  .field input[type=number] {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-family: var(--mono);
-    font-size: 1rem; font-weight: 600;
-    color: var(--text);
-    background: #F8FAFC;
-    outline: none;
-    transition: border-color .2s;
-    -moz-appearance: textfield;
-  }
-  .field input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .field input[type=number]:focus { border-color: var(--teal); background: #fff; }
-  .field-unit {
-    font-size: 0.78rem; font-weight: 600; color: var(--muted);
-    white-space: nowrap;
-    min-width: 28px;
-  }
- 
-  .sex-row { display: flex; gap: 10px; }
-  .sex-btn {
-    flex: 1; padding: 9px 0;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    background: #F8FAFC;
-    font-family: var(--sans);
-    font-size: 0.82rem; font-weight: 600;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .sex-btn.active {
-    background: var(--teal);
-    border-color: var(--teal);
-    color: #fff;
-  }
- 
-  .calc-btn {
-    width: 100%; padding: 13px;
-    background: var(--navy);
-    color: #fff;
-    border: none; border-radius: 10px;
-    font-family: var(--sans);
-    font-size: 0.88rem; font-weight: 700;
-    letter-spacing: 0.05em; text-transform: uppercase;
-    cursor: pointer;
-    margin-top: 4px;
-    transition: background .2s;
-  }
-  .calc-btn:hover { background: var(--navy-md); }
- 
-  /* ── GAUGE ── */
-  .gauge-card { grid-column: 1 / -1; padding: 28px 32px; }
-  .gauge-wrap { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
-  .gauge-svg { width: 320px; max-width: 100%; }
- 
-  .imc-display {
-    text-align: center;
-    margin-top: 4px;
-  }
-  .imc-value {
-    font-family: var(--mono);
-    font-size: 3.2rem; font-weight: 600;
-    letter-spacing: -0.03em;
-    color: var(--navy);
-    line-height: 1;
-  }
-  .imc-class {
-    font-size: 0.9rem; font-weight: 700;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    margin-top: 4px;
-  }
- 
-  /* ── RESULTS GRID ── */
-  .results-card { grid-column: 1 / -1; }
-  .results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
-  }
-  .stat-box {
-    background: #F8FAFC;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-  }
-  .stat-label {
-    font-size: 0.68rem; font-weight: 700;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 6px;
-  }
-  .stat-value {
-    font-family: var(--mono);
-    font-size: 1.25rem; font-weight: 600;
-    color: var(--navy);
-  }
-  .stat-sub {
-    font-size: 0.7rem; color: var(--muted); margin-top: 2px;
-  }
- 
-  /* ── RISK TABLE ── */
-  .risk-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 4px; }
-  .risk-table th {
-    text-align: left; padding: 7px 10px;
-    font-size: 0.68rem; font-weight: 700;
-    letter-spacing: 0.07em; text-transform: uppercase;
-    color: var(--muted);
-    border-bottom: 1.5px solid var(--border);
-  }
-  .risk-table td { padding: 9px 10px; border-bottom: 1px solid #F1F5F9; }
-  .risk-table tr:last-child td { border: none; }
-  .risk-table tr.highlight td { background: #F0FDF4; font-weight: 600; }
-  .dot {
-    display: inline-block; width: 10px; height: 10px;
-    border-radius: 50%; margin-right: 7px; vertical-align: middle;
-  }
- 
-  /* ── HIDDEN ── */
-  .hidden { display: none !important; }
-  .placeholder {
-    color: var(--muted); font-size: 0.85rem;
-    text-align: center; padding: 20px 0;
-  }
- 
-  /* ── GYM EXTRAS ── */
-  #gymExtras .card-title { color: var(--teal); }
-  .progress-bar-wrap { margin-top: 6px; }
-  .progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
-  .progress-bg { background: #E2E8F0; border-radius: 99px; height: 10px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 99px; transition: width .6s ease; background: var(--teal); }
- 
-  @media (max-width: 600px) {
-    .main { grid-template-columns: 1fr; }
-    .gauge-card, .results-card { grid-column: 1; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de IMC — Academia & Clínico</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0E1117;
+      --surface:   #161B25;
+      --card:      #1C2333;
+      --border:    #2A3245;
+      --accent:    #3B82F6;
+      --accent2:   #22D3EE;
+      --text:      #E2E8F0;
+      --muted:     #8694A8;
+      --green:     #22C55E;
+      --yellow:    #EAB308;
+      --orange:    #F97316;
+      --red:       #EF4444;
+      --darkred:   #991B1B;
+      --radius:    10px;
+      --radius-lg: 14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    header h1 {
+      font-size: clamp(22px, 4vw, 30px);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 0;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .tab:hover { color: var(--text); border-color: #3E4E6A; }
+    .tab.active {
+      background: var(--card);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    /* ── Form ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 540px) {
+      .form-grid, .form-grid.cols3 { grid-template-columns: 1fr; }
+    }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; color: var(--muted); }
+    .field input, .field select {
+      padding: 9px 12px;
+      font-size: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .field input::placeholder { color: #4A5568; }
+
+    /* ── Unit toggle ── */
+    .unit-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .unit-btn {
+      padding: 6px 16px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--card);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .unit-btn.active {
+      background: rgba(59,130,246,.18);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── CTA ── */
+    .btn-calc {
+      width: 100%;
+      padding: 13px;
+      margin-top: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #2563EB, #0EA5E9);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      letter-spacing: .02em;
+      transition: opacity 0.15s, transform 0.12s;
+    }
+    .btn-calc:hover { opacity: .88; }
+    .btn-calc:active { transform: scale(.98); }
+
+    /* ── Result panel ── */
+    #result { display: none; }
+    #result.show { display: block; }
+
+    /* BMI hero */
+    .bmi-hero {
+      text-align: center;
+      padding: 28px 16px 20px;
+    }
+    .bmi-value {
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .bmi-unit { font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .bmi-class {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    /* Scale bar */
+    .scale-wrap { margin: 20px 0 6px; }
+    .scale-bar {
+      position: relative;
+      height: 10px;
+      border-radius: 5px;
+      overflow: visible;
+    }
+    .scale-segments {
+      display: flex;
+      height: 100%;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .seg { height: 100%; }
+    .scale-needle {
+      position: absolute;
+      top: -5px;
+      width: 4px;
+      height: 20px;
+      background: #fff;
+      border-radius: 2px;
+      transform: translateX(-50%);
+      box-shadow: 0 0 6px rgba(255,255,255,.6);
+      transition: left 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* Metrics grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media(max-width:480px){ .metrics-grid { grid-template-columns: 1fr; } }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .metric .m-label { font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+    .metric .m-value { font-size: 24px; font-weight: 600; }
+    .metric .m-sub   { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    /* Fat bar */
+    .fat-bar-bg {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0 4px;
+    }
+    .fat-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width .5s ease;
+    }
+
+    /* Alert blocks */
+    .alert {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      border: 1px solid;
+      font-size: 13px;
+      line-height: 1.65;
+      margin-bottom: 12px;
+    }
+    .alert strong { display: block; margin-bottom: 4px; }
+
+    /* WHO table */
+    .who-table { overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; }
+    .who-row {
+      display: grid;
+      grid-template-columns: 2fr 1.4fr 1.4fr;
+      padding: 9px 14px;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      transition: background .15s;
+    }
+    .who-row:last-child { border-bottom: none; }
+    .who-row.head { font-size: 11px; font-weight: 600; color: var(--muted); background: var(--card); text-transform: uppercase; letter-spacing:.05em; }
+    .who-row.highlight { background: rgba(59,130,246,.12); }
+    .dot-circle {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-right: 7px;
+      flex-shrink: 0;
+    }
+
+    /* Disclaimer */
+    .disclaimer {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
 </head>
 <body>
- 
-<header>
-  <div class="logo-icon">⚕️</div>
-  <div>
+<div class="wrapper">
+
+  <header>
     <h1>Calculadora de IMC</h1>
-    <p>Clínico &amp; Performance</p>
+    <p>Para praticantes de academia e profissionais de saúde · Baseado nas diretrizes da OMS</p>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tab-fitness" onclick="setMode('fitness')">🏋️ Academia / Fitness</button>
+    <button class="tab" id="tab-clinic" onclick="setMode('clinic')">🩺 Clínico / Médico</button>
   </div>
-</header>
- 
-<!-- MODE TOGGLE -->
-<div class="mode-bar">
-  <button class="mode-btn active" id="btnClinico" onclick="setMode('clinico')">🏥 Modo Clínico</button>
-  <button class="mode-btn" id="btnAcademia" onclick="setMode('academia')">🏋️ Modo Academia</button>
-</div>
- 
-<div class="main">
- 
-  <!-- INPUT CARD -->
+
+  <!-- Formulário -->
   <div class="card">
-    <div class="card-title">Dados do Paciente / Atleta</div>
- 
-    <div class="field">
-      <label>Sexo biológico</label>
-      <div class="sex-row">
-        <button class="sex-btn active" id="btnM" onclick="setSex('M')">♂ Masculino</button>
-        <button class="sex-btn" id="btnF" onclick="setSex('F')">♀ Feminino</button>
+    <div class="card-title">Dados pessoais</div>
+
+    <div class="unit-row">
+      <button class="unit-btn active" id="u-metric" onclick="setUnit('metric')">kg / cm</button>
+      <button class="unit-btn" id="u-imperial" onclick="setUnit('imperial')">lb / ft·in</button>
+    </div>
+
+    <div id="f-metric" class="form-grid" style="margin-bottom:14px">
+      <div class="field"><label>Peso (kg)</label><input type="number" id="peso-kg" placeholder="75" min="20" max="300" step="0.1"></div>
+      <div class="field"><label>Altura (cm)</label><input type="number" id="altura-cm" placeholder="175" min="100" max="250" step="0.5"></div>
+    </div>
+
+    <div id="f-imperial" class="form-grid" style="display:none; margin-bottom:14px">
+      <div class="field"><label>Peso (lb)</label><input type="number" id="peso-lb" placeholder="165" min="44" max="660" step="0.5"></div>
+      <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="field"><label>Pés</label><input type="number" id="altura-ft" placeholder="5" min="3" max="8"></div>
+        <div class="field"><label>Polegadas</label><input type="number" id="altura-in" placeholder="9" min="0" max="11"></div>
       </div>
     </div>
- 
-    <div class="field">
-      <label>Idade</label>
-      <div class="field-row">
-        <input type="number" id="idade" min="5" max="120" placeholder="30">
-        <span class="field-unit">anos</span>
+
+    <div class="form-grid" style="margin-bottom:14px">
+      <div class="field"><label>Idade (anos)</label><input type="number" id="idade" placeholder="30" min="10" max="120"></div>
+      <div class="field"><label>Sexo biológico</label>
+        <select id="sexo">
+          <option value="M">Masculino</option>
+          <option value="F">Feminino</option>
+        </select>
       </div>
     </div>
- 
-    <div class="field">
-      <label>Altura</label>
-      <div class="field-row">
-        <input type="number" id="altura" min="50" max="250" placeholder="175">
-        <span class="field-unit">cm</span>
+
+    <!-- Fitness extras -->
+    <div id="extra-fitness" class="form-grid">
+      <div class="field"><label>Circunferência da cintura (cm) — opcional</label><input type="number" id="cintura-f" placeholder="80" min="40" max="200"></div>
+      <div class="field"><label>Nível de atividade física</label>
+        <select id="atividade">
+          <option value="1.2">Sedentário</option>
+          <option value="1.375">Leve (1–2×/sem)</option>
+          <option value="1.55" selected>Moderado (3–4×/sem)</option>
+          <option value="1.725">Ativo (5–6×/sem)</option>
+          <option value="1.9">Muito ativo (2×/dia)</option>
+        </select>
       </div>
     </div>
- 
-    <div class="field">
-      <label>Peso</label>
-      <div class="field-row">
-        <input type="number" id="peso" min="10" max="400" step="0.1" placeholder="75">
-        <span class="field-unit">kg</span>
-      </div>
+
+    <!-- Clinic extras -->
+    <div id="extra-clinic" class="form-grid" style="display:none">
+      <div class="field"><label>Circunferência da cintura (cm) — opcional</label><input type="number" id="cintura-c" placeholder="80" min="40" max="200"></div>
+      <div class="field"><label>PA sistólica (mmHg) — opcional</label><input type="number" id="pa" placeholder="120" min="70" max="250"></div>
     </div>
- 
-    <!-- GYM ONLY -->
-    <div id="gymInputs" class="hidden">
-      <div class="field">
-        <label>Circunferência abdominal</label>
-        <div class="field-row">
-          <input type="number" id="cintura" min="40" max="200" placeholder="88">
-          <span class="field-unit">cm</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>Circunferência do quadril</label>
-        <div class="field-row">
-          <input type="number" id="quadril" min="40" max="200" placeholder="95">
-          <span class="field-unit">cm</span>
-        </div>
-      </div>
-    </div>
- 
-    <button class="calc-btn" onclick="calcular()">Calcular IMC</button>
+
+    <button class="btn-calc" onclick="calcular()">Calcular IMC</button>
   </div>
- 
-  <!-- GAUGE CARD -->
-  <div class="card gauge-card" id="gaugeCard">
-    <div id="gaugeEmpty" class="placeholder">Preencha os dados e clique em Calcular</div>
-    <div id="gaugeResult" class="hidden">
-      <div class="gauge-wrap">
-        <svg class="gauge-svg" viewBox="0 0 320 180" id="gaugeSvg">
-          <defs>
-            <linearGradient id="gNeedle" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#1A3A5C"/>
-              <stop offset="100%" stop-color="#2A5080"/>
-            </linearGradient>
-          </defs>
-          <!-- Arcos de fundo -->
-          <!-- Muito baixo (<16) -->
-          <path id="arc0" d="" fill="none" stroke="#7DD3FC" stroke-width="22" stroke-linecap="butt"/>
-          <!-- Magreza moderada (16-17) -->
-          <path id="arc1" d="" fill="none" stroke="#38BDF8" stroke-width="22" stroke-linecap="butt"/>
-          <!-- Magreza leve (17-18.5) -->
-          <path id="arc2" d="" fill="none" stroke="#34D399" stroke-width="22" stroke-linecap="butt"/>
-          <!-- Normal (18.5-24.9) -->
-          <path id="arc3" d="" fill="none" stroke="#16A34A" stroke-width="22" stroke-linecap="butt"/>
-          <!-- Sobrepeso (25-29.9) -->
-          <path id="arc4" d="" fill="none" stroke="#D97706" stroke-width="22" stroke-linecap="butt"/>
-          <!-- Obesidade I (30-34.9) -->
-          <path id="arc5" d="" fill="none" stroke="#EA580C" stroke-width="22" stroke-linecap="butt"/>
-          <!-- Obesidade II (35-39.9) -->
-          <path id="arc6" d="" fill="none" stroke="#DC2626" stroke-width="22" stroke-linecap="butt"/>
-          <!-- Obesidade III (≥40) -->
-          <path id="arc7" d="" fill="none" stroke="#7F1D1D" stroke-width="22" stroke-linecap="butt"/>
-          <!-- Agulha -->
-          <line id="needle" x1="160" y1="150" x2="160" y2="80"
-            stroke="url(#gNeedle)" stroke-width="4" stroke-linecap="round"
-            style="transform-origin: 160px 150px; transition: transform .8s cubic-bezier(.22,.61,.36,1)"/>
-          <circle cx="160" cy="150" r="7" fill="#1A3A5C"/>
-          <circle cx="160" cy="150" r="3" fill="#fff"/>
-        </svg>
-        <div class="imc-display">
-          <div class="imc-value" id="imcValor">—</div>
-          <div class="imc-class" id="imcClasse" style="color: var(--navy);">—</div>
+
+  <!-- Resultado -->
+  <div id="result">
+
+    <div class="card">
+      <div class="bmi-hero">
+        <div class="bmi-value" id="r-imc">—</div>
+        <div class="bmi-unit">kg/m² — Índice de Massa Corporal</div>
+        <div class="bmi-class" id="r-class">—</div>
+      </div>
+
+      <!-- Barra visual -->
+      <div class="scale-wrap">
+        <div class="scale-bar">
+          <div class="scale-segments">
+            <div class="seg" style="width:16%;background:#16A34A"></div>
+            <div class="seg" style="width:24%;background:#65A30D"></div>
+            <div class="seg" style="width:20%;background:#CA8A04"></div>
+            <div class="seg" style="width:20%;background:#DC2626"></div>
+            <div class="seg" style="width:20%;background:#7F1D1D"></div>
+          </div>
+          <div class="scale-needle" id="needle" style="left:0%"></div>
+        </div>
+        <div class="scale-labels">
+          <span>16</span><span>18,5</span><span>25</span><span>30</span><span>35</span><span>≥40</span>
         </div>
       </div>
     </div>
+
+    <!-- Métricas fitness -->
+    <div id="panel-fitness">
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="m-label">Peso ideal estimado</div>
+          <div class="m-value" id="r-pideal">—</div>
+          <div class="m-sub">IMC 22 — ponto médio saudável</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">Diferença para o ideal</div>
+          <div class="m-value" id="r-diff">—</div>
+          <div class="m-sub" id="r-diff-sub">—</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">Gordura corporal estimada</div>
+          <div class="m-value" id="r-gc">—</div>
+          <div class="m-sub" id="r-gc-class">—</div>
+          <div class="fat-bar-bg"><div class="fat-bar-fill" id="r-gc-bar" style="width:0%"></div></div>
+        </div>
+        <div class="metric">
+          <div class="m-label">GET / TDEE (manutenção)</div>
+          <div class="m-value" id="r-get">—</div>
+          <div class="m-sub">kcal/dia estimadas</div>
+        </div>
+      </div>
+      <div id="alerts-fitness"></div>
+    </div>
+
+    <!-- Métricas clínicas -->
+    <div id="panel-clinic" style="display:none">
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="m-label">Peso ideal (ref. OMS, IMC 21,7)</div>
+          <div class="m-value" id="r-pideal-c">—</div>
+          <div class="m-sub">—</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">Risco cardiovascular composto</div>
+          <div class="m-value" id="r-cardio">—</div>
+          <div class="m-sub">IMC + cintura abdominal</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">Gordura corporal estimada</div>
+          <div class="m-value" id="r-gc-c">—</div>
+          <div class="m-sub" id="r-gc-class-c">—</div>
+          <div class="fat-bar-bg"><div class="fat-bar-fill" id="r-gc-bar-c" style="width:0%"></div></div>
+        </div>
+        <div class="metric">
+          <div class="m-label">Risco cintura abdominal (OMS)</div>
+          <div class="m-value" id="r-wrisk">—</div>
+          <div class="m-sub" id="r-wrisk-sub">—</div>
+        </div>
+      </div>
+      <div id="alerts-clinic"></div>
+
+      <!-- Tabela OMS -->
+      <div class="card-title" style="margin-top:4px">Tabela de classificação OMS — adultos</div>
+      <div class="who-table">
+        <div class="who-row head"><span>Classificação</span><span>IMC (kg/m²)</span><span>Risco</span></div>
+        <div class="who-row" id="wr1"><span><span class="dot-circle" style="background:#166534"></span>Magreza grave</span><span>&lt; 16,0</span><span>Muito elevado</span></div>
+        <div class="who-row" id="wr2"><span><span class="dot-circle" style="background:#15803D"></span>Magreza moderada</span><span>16,0–16,9</span><span>Elevado</span></div>
+        <div class="who-row" id="wr3"><span><span class="dot-circle" style="background:#65A30D"></span>Magreza leve</span><span>17,0–18,4</span><span>Moderado</span></div>
+        <div class="who-row" id="wr4"><span><span class="dot-circle" style="background:#16A34A"></span>Peso normal</span><span>18,5–24,9</span><span>Baixo</span></div>
+        <div class="who-row" id="wr5"><span><span class="dot-circle" style="background:#CA8A04"></span>Pré-obesidade</span><span>25,0–29,9</span><span>Aumentado</span></div>
+        <div class="who-row" id="wr6"><span><span class="dot-circle" style="background:#DC2626"></span>Obesidade grau I</span><span>30,0–34,9</span><span>Alto</span></div>
+        <div class="who-row" id="wr7"><span><span class="dot-circle" style="background:#B91C1C"></span>Obesidade grau II</span><span>35,0–39,9</span><span>Muito alto</span></div>
+        <div class="who-row" id="wr8"><span><span class="dot-circle" style="background:#7F1D1D"></span>Obesidade grau III</span><span>≥ 40,0</span><span>Extremamente alto</span></div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      ⚠ Este resultado é informativo e não substitui avaliação clínica profissional.
+      <br>Estimativas de gordura corporal são baseadas na fórmula de Deurenberg (1991).
+    </div>
   </div>
- 
-  <!-- STATS CARD -->
-  <div class="card results-card" id="statsCard" style="display:none">
-    <div class="card-title">Métricas</div>
-    <div class="results-grid" id="statsGrid"></div>
-  </div>
- 
-  <!-- GYM EXTRAS -->
-  <div class="card hidden" id="gymExtras">
-    <div class="card-title" style="color: var(--teal)">Composição &amp; Desempenho</div>
-    <div id="gymStatsContent"></div>
-  </div>
- 
-  <!-- RISK TABLE CARD -->
-  <div class="card results-card" id="riskCard" style="display:none">
-    <div class="card-title">Classificação WHO — Tabela de Referência</div>
-    <table class="risk-table" id="riskTable"></table>
-  </div>
- 
-</div>
- 
+
+</div><!-- /wrapper -->
+
 <script>
-let currentMode = 'clinico';
-let currentSex  = 'M';
- 
+let mode = 'fitness', unit = 'metric';
+
 function setMode(m) {
-  currentMode = m;
-  document.getElementById('btnClinico').classList.toggle('active', m === 'clinico');
-  document.getElementById('btnAcademia').classList.toggle('active', m === 'academia');
-  document.getElementById('gymInputs').classList.toggle('hidden', m !== 'academia');
-  document.getElementById('gymExtras').classList.add('hidden');
-  resetResults();
+  mode = m;
+  document.getElementById('tab-fitness').classList.toggle('active', m === 'fitness');
+  document.getElementById('tab-clinic').classList.toggle('active', m === 'clinic');
+  document.getElementById('extra-fitness').style.display = m === 'fitness' ? '' : 'none';
+  document.getElementById('extra-clinic').style.display  = m === 'clinic'  ? '' : 'none';
+  document.getElementById('result').classList.remove('show');
 }
- 
-function setSex(s) {
-  currentSex = s;
-  document.getElementById('btnM').classList.toggle('active', s === 'M');
-  document.getElementById('btnF').classList.toggle('active', s === 'F');
+
+function setUnit(u) {
+  unit = u;
+  document.getElementById('u-metric').classList.toggle('active', u === 'metric');
+  document.getElementById('u-imperial').classList.toggle('active', u === 'imperial');
+  document.getElementById('f-metric').style.display   = u === 'metric'   ? '' : 'none';
+  document.getElementById('f-imperial').style.display = u === 'imperial' ? '' : 'none';
 }
- 
-function resetResults() {
-  document.getElementById('gaugeEmpty').classList.remove('hidden');
-  document.getElementById('gaugeResult').classList.add('hidden');
-  document.getElementById('statsCard').style.display = 'none';
-  document.getElementById('riskCard').style.display  = 'none';
-  document.getElementById('gymExtras').classList.add('hidden');
+
+// ── Cálculos (espelho do imc.py) ──────────────────────────────────
+
+function calcIMC(peso, alturaM) { return peso / (alturaM * alturaM); }
+
+function classificarIMC(imc) {
+  const tabela = [
+    [16,   'Magreza grave (grau III)',       '#166534', 'wr1'],
+    [17,   'Magreza moderada (grau II)',      '#15803D', 'wr2'],
+    [18.5, 'Magreza leve (grau I)',           '#65A30D', 'wr3'],
+    [25,   'Peso normal',                     '#16A34A', 'wr4'],
+    [30,   'Pré-obesidade / Sobrepeso',       '#CA8A04', 'wr5'],
+    [35,   'Obesidade grau I',                '#DC2626', 'wr6'],
+    [40,   'Obesidade grau II',               '#B91C1C', 'wr7'],
+    [Infinity, 'Obesidade grau III (mórbida)','#7F1D1D', 'wr8'],
+  ];
+  return tabela.find(([lim]) => imc < lim);
 }
- 
-/* ── GAUGE MATH ── */
-const CX = 160, CY = 150, R = 100;
-const ARC_START = Math.PI;       // 180°
-const ARC_END   = 2 * Math.PI;   // 360°
-const ARC_SPAN  = Math.PI;
- 
-// IMC ← angle mapping: 10 → 0%, 50 → 100%
-function imcToAngle(imc) {
-  const pct = Math.min(Math.max((imc - 10) / 40, 0), 1);
-  return ARC_START + pct * ARC_SPAN;
+
+function estimarGordura(imc, idade, sexo) {
+  const s = sexo === 'M' ? 1 : 0;
+  return +(1.20 * imc + 0.23 * idade - 10.8 * s - 5.4).toFixed(1);
 }
- 
-function polar(angle) {
-  return {
-    x: CX + R * Math.cos(angle),
-    y: CY + R * Math.sin(angle)
-  };
+
+function classGordura(pct, sexo) {
+  const tabM = [[6,'Essencial'],[14,'Atleta'],[18,'Fitness'],[25,'Aceitável'],[Infinity,'Obesidade']];
+  const tabF = [[14,'Essencial'],[21,'Atleta'],[25,'Fitness'],[32,'Aceitável'],[Infinity,'Obesidade']];
+  const tab  = sexo === 'M' ? tabM : tabF;
+  return tab.find(([lim]) => pct < lim)[1];
 }
- 
-function arcPath(a1, a2) {
-  const p1 = polar(a1), p2 = polar(a2);
-  const large = (a2 - a1) > Math.PI ? 1 : 0;
-  return `M ${p1.x} ${p1.y} A ${R} ${R} 0 ${large} 1 ${p2.x} ${p2.y}`;
+
+function calcTMB(peso, altCm, idade, sexo) {
+  return sexo === 'M'
+    ? 88.362 + 13.397 * peso + 4.799 * altCm - 5.677 * idade
+    : 447.593 + 9.247 * peso + 3.098 * altCm - 4.330 * idade;
 }
- 
-// Bands: [imcMin, imcMax, arcId]
-const BANDS = [
-  [10,   16,   'arc0'],
-  [16,   17,   'arc1'],
-  [17,   18.5, 'arc2'],
-  [18.5, 25,   'arc3'],
-  [25,   30,   'arc4'],
-  [30,   35,   'arc5'],
-  [35,   40,   'arc6'],
-  [40,   50,   'arc7'],
-];
- 
-function drawGauge(imc) {
-  BANDS.forEach(([a, b, id]) => {
-    const el = document.getElementById(id);
-    el.setAttribute('d', arcPath(imcToAngle(a), imcToAngle(b)));
-    el.setAttribute('opacity', '0.25');
-  });
- 
-  // highlight band
-  BANDS.forEach(([a, b, id]) => {
-    if (imc >= a && imc < b) {
-      document.getElementById(id).setAttribute('opacity', '1');
+
+function needlePos(imc) {
+  const stops = [[16,18.5],[18.5,25],[25,30],[30,35],[35,40]];
+  const cum   = [0, 16, 40, 60, 80, 100];
+  if (imc <= 16)  return 0;
+  if (imc >= 40)  return 100;
+  for (let i = 0; i < stops.length; i++) {
+    const [lo, hi] = stops[i];
+    if (imc <= hi) {
+      return cum[i] + (imc - lo) / (hi - lo) * (cum[i+1] - cum[i]);
     }
-  });
-  // edge case: ≥40
-  if (imc >= 40) document.getElementById('arc7').setAttribute('opacity', '1');
- 
-  // needle
-  const angle = imcToAngle(Math.min(Math.max(imc, 10), 50));
-  const deg   = (angle - Math.PI / 2) * (180 / Math.PI);
-  document.getElementById('needle').style.transform = `rotate(${deg}deg)`;
+  }
+  return 100;
 }
- 
-/* ── CLASSIFICATION ── */
-const TABLE = [
-  { label: 'Magreza Grau III',  min: 0,    max: 16,   cor: '#7DD3FC', risco: 'Muito elevado'  },
-  { label: 'Magreza Grau II',   min: 16,   max: 17,   cor: '#38BDF8', risco: 'Elevado'         },
-  { label: 'Magreza Grau I',    min: 17,   max: 18.5, cor: '#34D399', risco: 'Elevado'         },
-  { label: 'Peso adequado',     min: 18.5, max: 25,   cor: '#16A34A', risco: 'Baixo'            },
-  { label: 'Sobrepeso',         min: 25,   max: 30,   cor: '#D97706', risco: 'Moderado'         },
-  { label: 'Obesidade Grau I',  min: 30,   max: 35,   cor: '#EA580C', risco: 'Alto'             },
-  { label: 'Obesidade Grau II', min: 35,   max: 40,   cor: '#DC2626', risco: 'Muito Alto'       },
-  { label: 'Obesidade Grau III',min: 40,   max: 999,  cor: '#7F1D1D', risco: 'Extremamente Alto'},
-];
- 
-function classify(imc) {
-  return TABLE.find(t => imc >= t.min && imc < t.max) || TABLE[TABLE.length - 1];
+
+// ── Helpers de UI ─────────────────────────────────────────────────
+
+function colorGC(cls) {
+  return { 'Essencial':'#22C55E', 'Atleta':'#22C55E', 'Fitness':'#86EFAC',
+           'Aceitável':'#CA8A04', 'Obesidade':'#DC2626' }[cls] || '#8694A8';
 }
- 
-/* ── DEURENBERG body fat % estimation ── */
-function bodyFat(imc, age, sex) {
-  // Deurenberg (1991)
-  const s = sex === 'M' ? 1 : 0;
-  return (1.20 * imc) + (0.23 * age) - (10.8 * s) - 5.4;
+
+function alert_(html, bg, border, color) {
+  return `<div class="alert" style="background:${bg};border-color:${border};color:${color}">${html}</div>`;
 }
- 
-/* ── FAT MASS / LEAN MASS ── */
-function composition(peso, fat) {
-  const fm  = peso * (fat / 100);
-  const lm  = peso - fm;
-  return { fm: fm.toFixed(1), lm: lm.toFixed(1) };
-}
- 
-/* ── WAIST-HIP RATIO ── */
-function whr(cintura, quadril) {
-  return (cintura / quadril).toFixed(2);
-}
- 
-/* ── ABSI (A Body Shape Index) ── */
-function absi(cintura, peso, altura) {
-  const bmi = peso / ((altura / 100) ** 2);
-  return (cintura / 100) / (bmi ** (2 / 3) * (altura / 100) ** 0.5);
-}
- 
-/* ── PESO IDEAL (Lorentz) ── */
-function idealWeight(altura, sex) {
-  const h = altura - 100;
-  return sex === 'M'
-    ? h - (h - 150) / 4
-    : h - (h - 150) / 2;
-}
- 
-/* ── MAIN CALC ── */
+
+// ── Cálculo principal ──────────────────────────────────────────────
+
 function calcular() {
-  const idade  = parseFloat(document.getElementById('idade').value);
-  const altura = parseFloat(document.getElementById('altura').value);
-  const peso   = parseFloat(document.getElementById('peso').value);
- 
-  if (!idade || !altura || !peso || altura < 50 || peso < 10 || idade < 1) {
-    alert('Por favor, preencha todos os campos corretamente.');
+  let peso, altCm;
+  if (unit === 'metric') {
+    peso  = parseFloat(document.getElementById('peso-kg').value);
+    altCm = parseFloat(document.getElementById('altura-cm').value);
+  } else {
+    const lb = parseFloat(document.getElementById('peso-lb').value);
+    const ft = parseFloat(document.getElementById('altura-ft').value) || 0;
+    const inp= parseFloat(document.getElementById('altura-in').value) || 0;
+    peso  = lb * 0.453592;
+    altCm = (ft * 12 + inp) * 2.54;
+  }
+
+  const idade = parseInt(document.getElementById('idade').value);
+  const sexo  = document.getElementById('sexo').value;
+
+  if (!peso || !altCm || !idade || altCm < 100) {
+    alert('Preencha corretamente peso, altura e idade para calcular.');
     return;
   }
- 
-  const h_m = altura / 100;
-  const imc  = peso / (h_m * h_m);
-  const cls  = classify(imc);
- 
-  // Show gauge
-  document.getElementById('gaugeEmpty').classList.add('hidden');
-  document.getElementById('gaugeResult').classList.remove('hidden');
-  drawGauge(imc);
- 
-  document.getElementById('imcValor').textContent = imc.toFixed(1);
-  document.getElementById('imcClasse').textContent = cls.label;
-  document.getElementById('imcClasse').style.color  = cls.cor;
- 
-  // Stats
-  const fat = bodyFat(imc, idade, currentSex);
-  const comp = composition(peso, fat);
-  const pi   = idealWeight(altura, currentSex);
-  const diff  = (peso - pi).toFixed(1);
-  const diffStr = diff > 0 ? `+${diff} kg` : `${diff} kg`;
- 
-  const stats = [
-    { label: 'IMC',              value: imc.toFixed(2),     sub: 'kg/m²'        },
-    { label: 'Classificação WHO',value: cls.label,           sub: `Risco: ${cls.risco}` },
-    { label: '% Gordura Est.',   value: fat.toFixed(1) + '%', sub: 'Deurenberg 1991' },
-    { label: 'Massa Gorda',      value: comp.fm + ' kg',    sub: 'estimada'     },
-    { label: 'Massa Magra',      value: comp.lm + ' kg',    sub: 'estimada'     },
-    { label: 'Peso Ideal (Lorentz)', value: pi.toFixed(1) + ' kg', sub: `Diferença: ${diffStr}` },
-  ];
- 
-  document.getElementById('statsGrid').innerHTML = stats.map(s => `
-    <div class="stat-box">
-      <div class="stat-label">${s.label}</div>
-      <div class="stat-value">${s.value}</div>
-      <div class="stat-sub">${s.sub}</div>
-    </div>
-  `).join('');
-  document.getElementById('statsCard').style.display = '';
- 
-  // Risk table
-  document.getElementById('riskTable').innerHTML = `
-    <tr>
-      <th>Classificação</th><th>IMC (kg/m²)</th><th>Risco Cardiovascular</th>
-    </tr>
-    ${TABLE.map(t => `
-      <tr class="${t.label === cls.label ? 'highlight' : ''}">
-        <td><span class="dot" style="background:${t.cor}"></span>${t.label}</td>
-        <td style="font-family:var(--mono); font-size:.82rem">
-          ${t.min} – ${t.max < 999 ? t.max : '≥40'}
-        </td>
-        <td>${t.risco}</td>
-      </tr>
-    `).join('')}
-  `;
-  document.getElementById('riskCard').style.display = '';
- 
-  // GYM EXTRAS
-  if (currentMode === 'academia') {
-    const cintura = parseFloat(document.getElementById('cintura').value);
-    const quadril  = parseFloat(document.getElementById('quadril').value);
- 
-    let gymHtml = '';
- 
-    // Fat % progress bar
-    const fatMax = currentSex === 'M' ? 35 : 45;
-    const fatPct = Math.min((fat / fatMax) * 100, 100);
-    const fatIdeal = currentSex === 'M' ? '10–20%' : '18–28%';
-    gymHtml += `
-      <div style="margin-bottom:18px">
-        <div class="progress-label"><span>% Gordura Corporal</span><span style="font-family:var(--mono);font-weight:600">${fat.toFixed(1)}%</span></div>
-        <div class="progress-bg"><div class="progress-fill" style="width:${fatPct}%; background: ${fat < 5 ? '#38BDF8' : fat < (currentSex==='M'?20:28) ? '#16A34A' : fat < (currentSex==='M'?25:35) ? '#D97706' : '#DC2626'}"></div></div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:4px">Ideal (${currentSex==='M'?'homens':'mulheres'}): ${fatIdeal}</div>
-      </div>
-    `;
- 
-    if (cintura && quadril) {
-      const ratio = whr(cintura, quadril);
-      const riskWHR = currentSex === 'M'
-        ? (ratio < 0.90 ? 'Baixo' : ratio < 1.0 ? 'Moderado' : 'Alto')
-        : (ratio < 0.80 ? 'Baixo' : ratio < 0.85 ? 'Moderado' : 'Alto');
- 
-      const absiVal = absi(cintura, peso, altura);
- 
-      gymHtml += `
-        <div class="results-grid" style="margin-bottom:0">
-          <div class="stat-box">
-            <div class="stat-label">Razão Cintura/Quadril</div>
-            <div class="stat-value">${ratio}</div>
-            <div class="stat-sub">Risco: ${riskWHR}</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">ABSI</div>
-            <div class="stat-value">${absiVal.toFixed(4)}</div>
-            <div class="stat-sub">Índice de forma corporal</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Circ. Abdominal</div>
-            <div class="stat-value">${cintura} cm</div>
-            <div class="stat-sub">Alerta ♂≥94 ♀≥80 cm</div>
-          </div>
-        </div>
-      `;
-    } else {
-      gymHtml += `<p style="font-size:.78rem;color:var(--muted)">Insira cintura e quadril para ver métricas avançadas de composição.</p>`;
+
+  const altM    = altCm / 100;
+  const imc     = calcIMC(peso, altM);
+  const imcR    = +(imc).toFixed(1);
+  const [,cls,clsColor, whoRow] = classificarIMC(imc);
+  const gc      = estimarGordura(imc, idade, sexo);
+  const gcCls   = classGordura(gc, sexo);
+  const gcColor = colorGC(gcCls);
+  const maxGC   = sexo === 'M' ? 35 : 45;
+  const tmb     = calcTMB(peso, altCm, idade, sexo);
+  const fator   = parseFloat(document.getElementById('atividade').value);
+  const get     = Math.round(tmb * fator);
+  const idealW  = +(22 * altM * altM).toFixed(1);
+  const diff    = +(peso - idealW).toFixed(1);
+  const cintura_f = parseFloat(document.getElementById('cintura-f').value) || null;
+  const cintura_c = parseFloat(document.getElementById('cintura-c').value) || null;
+  const cintura   = cintura_f || cintura_c;
+  const pa        = parseFloat(document.getElementById('pa').value) || 0;
+
+  // IMC hero
+  document.getElementById('r-imc').textContent = imcR.toFixed(1);
+  document.getElementById('r-imc').style.color  = clsColor;
+  document.getElementById('r-class').textContent = cls;
+  document.getElementById('r-class').style.color  = clsColor;
+  document.getElementById('needle').style.left    = needlePos(imc).toFixed(1) + '%';
+
+  // WHO table highlight
+  ['wr1','wr2','wr3','wr4','wr5','wr6','wr7','wr8'].forEach(id =>
+    document.getElementById(id).classList.remove('highlight'));
+  document.getElementById(whoRow).classList.add('highlight');
+
+  // ── FITNESS panel ──
+  if (mode === 'fitness') {
+    document.getElementById('panel-fitness').style.display = 'block';
+    document.getElementById('panel-clinic').style.display  = 'none';
+
+    document.getElementById('r-pideal').textContent = idealW + ' kg';
+    const diffSign = diff >= 0 ? '+' : '';
+    document.getElementById('r-diff').textContent     = `${diffSign}${diff} kg`;
+    document.getElementById('r-diff').style.color     = Math.abs(diff) <= 2 ? '#22C55E' : diff > 0 ? '#DC2626' : '#22C55E';
+    document.getElementById('r-diff-sub').textContent = Math.abs(diff) <= 2 ? 'Dentro da faixa saudável' : diff > 0 ? 'acima do peso ideal' : 'abaixo do peso ideal';
+
+    document.getElementById('r-gc').textContent   = gc + '%';
+    document.getElementById('r-gc').style.color   = gcColor;
+    document.getElementById('r-gc-class').textContent = gcCls;
+    document.getElementById('r-gc-bar').style.width   = Math.min(gc / maxGC * 100, 100).toFixed(1) + '%';
+    document.getElementById('r-gc-bar').style.background = gcColor;
+
+    document.getElementById('r-get').textContent = get.toLocaleString('pt-BR') + ' kcal';
+
+    // Alerts
+    let html = '';
+    if (cintura) {
+      const limA = sexo === 'M' ? 94 : 80;
+      const limH = sexo === 'M' ? 102 : 88;
+      if (cintura >= limH)
+        html += alert_('<strong>⚠ Circunferência abdominal muito elevada:</strong> Risco substancial de síndrome metabólica. Foco em exercícios aeróbicos e ajuste alimentar.', 'rgba(220,38,38,.1)', '#DC2626', '#FCA5A5');
+      else if (cintura >= limA)
+        html += alert_('<strong>⚠ Circunferência abdominal elevada:</strong> Risco aumentado. Inclua cardio de zona 2 (3–5×/sem) e monitore a cintura mensalmente.', 'rgba(202,138,4,.1)', '#CA8A04', '#FDE68A');
+      else
+        html += alert_('<strong>✅ Circunferência abdominal normal.</strong> Bom controle de gordura visceral. Mantenha o treino e a alimentação.', 'rgba(22,163,74,.1)', '#16A34A', '#86EFAC');
     }
- 
-    document.getElementById('gymStatsContent').innerHTML = gymHtml;
-    document.getElementById('gymExtras').classList.remove('hidden');
+    if (diff > 3)
+      html += alert_(`<strong>🎯 Meta calórica sugerida:</strong> Déficit de ~500 kcal/dia → <strong>${(get - 500).toLocaleString('pt-BR')} kcal/dia</strong>. Expectativa: ~0,5 kg/semana de perda. Consulte um nutricionista esportivo.`, 'rgba(59,130,246,.08)', '#3B82F6', '#93C5FD');
+    else if (diff < -3)
+      html += alert_(`<strong>🎯 Meta calórica sugerida:</strong> Superávit de ~300 kcal/dia → <strong>${(get + 300).toLocaleString('pt-BR')} kcal/dia</strong>. Favorece ganho de massa magra. Priorize proteínas (1,8–2,2 g/kg).`, 'rgba(59,130,246,.08)', '#3B82F6', '#93C5FD');
+    document.getElementById('alerts-fitness').innerHTML = html;
+
+  } else {
+    // ── CLÍNICO panel ──
+    document.getElementById('panel-fitness').style.display = 'none';
+    document.getElementById('panel-clinic').style.display  = 'block';
+
+    const idealWC = +(21.7 * altM * altM).toFixed(1);
+    document.getElementById('r-pideal-c').textContent = idealWC + ' kg';
+
+    document.getElementById('r-gc-c').textContent      = gc + '%';
+    document.getElementById('r-gc-c').style.color      = gcColor;
+    document.getElementById('r-gc-class-c').textContent = gcCls;
+    document.getElementById('r-gc-bar-c').style.width  = Math.min(gc / maxGC * 100, 100).toFixed(1) + '%';
+    document.getElementById('r-gc-bar-c').style.background = gcColor;
+
+    let wRisk = '—', wSub = 'Forneça a cintura para avaliação';
+    if (cintura) {
+      const lA = sexo === 'M' ? 94 : 80, lH = sexo === 'M' ? 102 : 88;
+      if (cintura < lA)      { wRisk = 'Normal';         wSub = 'Sem risco adicional (OMS)'; }
+      else if (cintura < lH) { wRisk = 'Elevado';        wSub = 'Risco aumentado (OMS)'; }
+      else                   { wRisk = 'Muito elevado';  wSub = 'Risco substancial — encaminhar'; }
+    }
+    document.getElementById('r-wrisk').textContent     = wRisk;
+    document.getElementById('r-wrisk-sub').textContent = wSub;
+
+    let cardio = imc < 18.5 ? 'Baixo–Mod.' : imc < 25 ? 'Baixo' : imc < 30 ? 'Moderado' : imc < 35 ? 'Alto' : 'Muito alto';
+    if (cintura && ((sexo === 'M' && cintura >= 102) || (sexo === 'F' && cintura >= 88)))
+      cardio = cardio === 'Baixo' ? 'Moderado' : cardio === 'Moderado' ? 'Alto' : cardio;
+    document.getElementById('r-cardio').textContent = cardio;
+
+    // Alertas clínicos
+    let html = '';
+    const pontos = [];
+    if (imc >= 30)  pontos.push('IMC indica obesidade — investigar comorbidades (HAS, DM2, dislipidemia, apneia).');
+    if (pa >= 140)  pontos.push(`PA sistólica ${pa} mmHg — possível HAS grau 2. Referenciar para cardiologia.`);
+    else if (pa >= 130) pontos.push(`PA sistólica limítrofe (${pa} mmHg) — monitorar a cada 3–6 meses.`);
+    if (cintura && ((sexo === 'M' && cintura >= 94) || (sexo === 'F' && cintura >= 80)))
+      pontos.push('Circunferência abdominal aumentada — critério para síndrome metabólica (IDF/OMS).');
+    if (pontos.length) {
+      html += alert_('<strong>Pontos de atenção clínica:</strong><br>' + pontos.join('<br>') +
+        '<br><br><em style="font-size:11px;opacity:.7">IMC é ferramenta de triagem. O diagnóstico exige avaliação clínica completa.</em>',
+        'rgba(220,38,38,.1)', '#DC2626', '#FCA5A5');
+    } else {
+      html += alert_('<strong>✅ Parâmetros dentro do esperado.</strong> Manter acompanhamento de rotina e hábitos saudáveis.',
+        'rgba(22,163,74,.1)', '#16A34A', '#86EFAC');
+    }
+    document.getElementById('alerts-clinic').innerHTML = html;
   }
+
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
 </body>
 </html>
- 
